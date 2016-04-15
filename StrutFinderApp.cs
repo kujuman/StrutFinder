@@ -113,6 +113,32 @@ namespace StrutFinder
 			}
 		}
 
+		/// <summary>
+		/// Deletes a part.
+		/// </summary>
+		/// <param name="part">The part to delete.</param>
+		public static void Delete(Part part)
+		{
+			if(part == null)
+				throw new ArgumentNullException("part");
+
+			if(part.children != null && part.children.Count > 0)
+				throw new ArgumentException("Specified part has children and may not be deleted.", "part");
+
+			// First, get the parent part and delete the child part.
+			Part parent = part.parent;
+
+			parent.removeChild(part);
+
+			// Second, do the creepy stalker way of forcing EditorLogic to change the selected part.
+			EditorLogic.fetch.OnSubassemblyDialogDismiss(part);
+
+			// Third, ask the editor to destroy the part, which requires the part to have been selected previously.
+			EditorLogic.DeletePart(part);
+
+			// Finally, poke the staging logic to sort out any changes due to deleting this part.
+			Staging.SortIcons();
+		}
 		void draw(int id)
 		{
 			GUI.skin = HighLogic.Skin;
@@ -131,29 +157,55 @@ namespace StrutFinder
 			if (GUILayout.Button ("Hide Window")) {
 				display = false;
 			}
-			if (goodFirst) {
+			if (goodFirst && (badFuelLines.Count () + badStruts.Count () > 0)) {
 				if (GUILayout.Button ("Show bad struts first")) {
 					selectedStrut = null;
 					goodFirst = false;
 				}
 			} else {
-				if (GUILayout.Button ("Show good struts first")) {
-					selectedStrut = null;
-					goodFirst = true;
+				if (goodFuelLines.Count () + goodStruts.Count () > 0)
+				{
+					if (GUILayout.Button ("Show good struts first")) {
+						selectedStrut = null;
+						goodFirst = true;
+					}
 				}
 			}
 			if (selectedStrut != null) {
 				if (GUILayout.Button ("Delete Selected part")) {
-					Debug.Log ("Delete Selected part");
-					// Following logic is not working, it is failing on DeletePart
-//					EditorLogic.SortedShipList.Remove (selectedStrut);
-
-//					EditorLogic.DeletePart (selectedStrut);
-//					EditorLogic.Destroy (selectedStrut);
-					selectedStrut = null;
 					
+					Delete(selectedStrut);
+					// Repopulate incase a strut with symmetry was deleted
+					PopulatePartLists();
+					selectedStrut = null;					
 				}
 			}
+			if (badFuelLines.Count () + badStruts.Count () > 0) {
+				if (GUILayout.Button ("Delete all bad parts")) {
+					Part part;
+
+					while ((part = badFuelLines.FirstOrDefault ()) != null) {
+						try {
+							Delete (part);
+						} catch (Exception ex) {
+							Debug.Log ("Deletion of part: " + part.ToString () + "  failed: " + ex);
+						}
+					}
+					while ((part = badStruts.FirstOrDefault ()) != null) {
+						try {
+							Delete (part);
+						} catch (Exception ex) {
+							Debug.Log ("Deletion of part: " + part.ToString () + "  failed: " + ex);
+
+						}
+					}
+
+					// Repopulate incase a strut with symmetry was deleted
+					PopulatePartLists ();
+					selectedStrut = null;					
+				}
+			}
+
 			GUILayout.EndHorizontal ();
 			GUI.DragWindow ();
 		}
