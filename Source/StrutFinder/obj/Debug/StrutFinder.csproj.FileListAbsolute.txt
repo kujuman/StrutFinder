@@ -1,0 +1,5 @@
+c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\bin\Debug\StrutFinder.dll
+c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\bin\Debug\StrutFinder.pdb
+c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.dll
+c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.pdb
+c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.csprojResolveAssemblyReference.cache

@@ -10,7 +10,7 @@ using HighlightingSystem;
 
 namespace StrutFinder
 {
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
+    [KSPAddon(KSPAddon.Startup.EveryScene, false)]
     public class StrutFinderApp : MonoBehaviour
     {
         ApplicationLauncherButton launcherButton;
@@ -35,7 +35,7 @@ namespace StrutFinder
                     null,
                     null,
                     null,
-                    ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
+                    ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.FLIGHT,
                     (Texture)GameDatabase.Instance.GetTexture(HighlightIconOff, false));
             }
         }
@@ -119,13 +119,27 @@ namespace StrutFinder
             badStruts = new List<Part>();
             badFuelLines = new List<Part>();
 
-            if (EditorLogic.RootPart == null)
+            if (HighLogic.LoadedSceneIsEditor && EditorLogic.RootPart == null)
             {
                 TurnHighlightOff();
                 return;
             }
 
-            vesselP = EditorLogic.SortedShipList;
+            if (HighLogic.LoadedSceneIsEditor)
+            {
+                vesselP = EditorLogic.SortedShipList;
+            }
+            else if (HighLogic.LoadedSceneIsFlight)
+            {
+                vesselP = FlightGlobals.ActiveVessel.parts;
+            }
+            else if (true)
+            {
+                Debug.LogError("[StrutFinder] Error Getting Parts on Vessel");
+                return;
+            }
+
+      
 
             foreach (CompoundPart p in vesselP.OfType<CompoundPart>())
             {
