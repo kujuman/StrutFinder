@@ -146,31 +146,23 @@ namespace StrutFinder
 
             if (HighLogic.LoadedSceneIsFlight)
             {
-                if (part == null)
-                    throw new ArgumentNullException("part");
-
-                if (part.children != null && part.children.Count > 0)
-                    throw new ArgumentException("Specified part has children and may not be deleted.", "part");
-
-
                 switch (part.name)
                 {
                     case "strutConnector":
                         badStruts.Remove(part);
+                        part.Die();
+                        GameEvents.onVesselWasModified.Fire(part.vessel);
                         break;
 
                     case "fuelLine":
                         badFuelLines.Remove(part);
+                        part.Die();
+                        GameEvents.onVesselWasModified.Fire(part.vessel);
                         break;
 
                     default:
                         break;
                 }
-                part.Die();
-
-                
-
-                ;
             }
 		}
 		void draw(int id)
