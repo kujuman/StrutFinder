@@ -1,0 +1,14 @@
+﻿<Properties StartupItem="StrutFinder.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="StrutFinderApp.cs">
+    <Files>
+      <File FileName="StrutFinderApp.cs" Line="152" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="D:\Users\jbb\github\StrutFinder\StrutFinderApp.cs" line="170" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
