@@ -113,31 +113,65 @@ namespace StrutFinder
 			}
 		}
 
-		/// <summary>
-		/// Deletes a part.
-		/// </summary>
-		/// <param name="part">The part to delete.</param>
-		public static void Delete(Part part)
+        /// <summary>
+        /// Deletes a part.
+        /// </summary>
+        /// <param name="part">The part to delete.</param>
+        //public static
+        void Delete(Part part)
 		{
-			if(part == null)
-				throw new ArgumentNullException("part");
+            if (HighLogic.LoadedSceneIsEditor)
+            {
 
-			if(part.children != null && part.children.Count > 0)
-				throw new ArgumentException("Specified part has children and may not be deleted.", "part");
+                if (part == null)
+                    throw new ArgumentNullException("part");
 
-			// First, get the parent part and delete the child part.
-			Part parent = part.parent;
+                if (part.children != null && part.children.Count > 0)
+                    throw new ArgumentException("Specified part has children and may not be deleted.", "part");
 
-			parent.removeChild(part);
+                // First, get the parent part and delete the child part.
+                Part parent = part.parent;
 
-			// Second, do the creepy stalker way of forcing EditorLogic to change the selected part.
-			EditorLogic.fetch.OnSubassemblyDialogDismiss(part);
+                parent.removeChild(part);
 
-			// Third, ask the editor to destroy the part, which requires the part to have been selected previously.
-			EditorLogic.DeletePart(part);
+                // Second, do the creepy stalker way of forcing EditorLogic to change the selected part.
+                EditorLogic.fetch.OnSubassemblyDialogDismiss(part);
 
-			// Finally, poke the staging logic to sort out any changes due to deleting this part.
-			Staging.SortIcons();
+                // Third, ask the editor to destroy the part, which requires the part to have been selected previously.
+                EditorLogic.DeletePart(part);
+
+                // Finally, poke the staging logic to sort out any changes due to deleting this part.
+                Staging.SortIcons();
+            }
+
+            if (HighLogic.LoadedSceneIsFlight)
+            {
+                if (part == null)
+                    throw new ArgumentNullException("part");
+
+                if (part.children != null && part.children.Count > 0)
+                    throw new ArgumentException("Specified part has children and may not be deleted.", "part");
+
+
+                switch (part.name)
+                {
+                    case "strutConnector":
+                        badStruts.Remove(part);
+                        break;
+
+                    case "fuelLine":
+                        badFuelLines.Remove(part);
+                        break;
+
+                    default:
+                        break;
+                }
+                part.Die();
+
+                
+
+                ;
+            }
 		}
 		void draw(int id)
 		{
