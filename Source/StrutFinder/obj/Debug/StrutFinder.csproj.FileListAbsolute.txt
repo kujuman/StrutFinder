@@ -3,3 +3,8 @@ c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\b
 c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.dll
 c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.pdb
 c:\users\daniel7\documents\visual studio 2015\Projects\StrutFinder\StrutFinder\obj\Debug\StrutFinder.csprojResolveAssemblyReference.cache
+C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\bin\Debug\StrutFinder.dll
+C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\bin\Debug\StrutFinder.pdb
+C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.csprojResolveAssemblyReference.cache
+C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.dll
+C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.pdb
