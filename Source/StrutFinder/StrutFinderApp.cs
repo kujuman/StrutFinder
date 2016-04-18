@@ -1,124 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-//using System.Threading.Tasks;
-using KSP;
 using UnityEngine;
 using KSP.UI.Screens;
-using HighlightingSystem;
 
 namespace StrutFinder
 {
     [KSPAddon(KSPAddon.Startup.EveryScene, false)]
     public class StrutFinderApp : MonoBehaviour
     {
+        private GUI gui;
+
+        public string settingsURL = "GameData/StrutFinder/settings.cfg";
+        public Rect strutwin;
+
+        public bool display = false;
+
+        public bool DEBUG = false;
+        public bool goodConnectionsFirst = false;
+        public bool alwaysShowGUI = false;
+
         ApplicationLauncherButton launcherButton;
         bool launcherButtonNeedsInitializing = true;
         string HighlightIconOff = "StrutFinder/HighlightIconOff";
         string HighlightIconOn = "StrutFinder/HighlightIconOn";
 
         List<Part> vesselP = null;
-        List<Part> goodStruts = null;
-        List<Part> goodFuelLines = null;
-        List<Part> badStruts = null;
-        List<Part> badFuelLines = null;
+        public List<Part> goodStruts = null;
+        public List<Part> goodFuelLines = null;
+        public List<Part> badStruts = null;
+        public List<Part> badFuelLines = null;
 
-		bool display = false;
+        public Color goodStrutColor = XKCDColors.OffWhite;
+        public Color goodFuelLineColor = XKCDColors.Yellow;
+        public Color badStrutColor = XKCDColors.Red;
+        public Color badFuelLineColor = XKCDColors.Pink;
 
-		private Rect strutwin;
+
+
 		const float WIDTH = 500.0f;
 		const float HEIGHT = 250.0f;
 		void Start()
 		{
-			strutwin = new Rect ((float)(Screen.width- WIDTH), (float)(Screen.height / 2.0 - HEIGHT), WIDTH, HEIGHT);
+            strutwin = new Rect ((float)(Screen.width- WIDTH), (float)(Screen.height / 2.0 - HEIGHT), WIDTH, HEIGHT);
 		}
 
-		void OnGUI()
-		{
-			//Debug.Log ("display: " + display.ToString ());
-			if (display)
-				strutwin = GUILayout.Window (this.GetInstanceID () + 1, strutwin, new GUI.WindowFunction (draw), "Struts & Fuel Ducts", new GUILayoutOption[0]);
-		}
-			
-
-		public Vector2 sitesScrollPosition;
-		bool goodFirst = true;
-		GUIStyle bstyle = new GUIStyle (HighLogic.Skin.button);
-
-		enum lineType{goodFuel, goodStrut, badFuel, badStrut};
-		Part selectedStrut = null;
-
-		void showSelectedPart(lineType type, Part part)
-		{
-			UnHighlightParts(goodFuelLines);
-			UnHighlightParts(goodStruts);
-			UnHighlightParts( badFuelLines);
-			UnHighlightParts(badStruts);
-			selectedStrut = part;
-
-			switch (type) {
-			case lineType.goodFuel:
-				HighlightSinglePart (XKCDColors.Aqua, XKCDColors.Yellow, part);
-				break;
-			case lineType.goodStrut:
-				HighlightSinglePart (XKCDColors.Purple, XKCDColors.OffWhite, part);
-				break;
-			case lineType.badFuel:
-				HighlightSinglePart (XKCDColors.Aqua, XKCDColors.Green, part);
-				break;
-			case lineType.badStrut:
-				HighlightSinglePart (XKCDColors.Purple, XKCDColors.Red, part);
-				break;
-			}
-		}
-
-		void showGoodStruts()
-		{
-			//  list the good struts
-			bstyle.normal.textColor = Color.green;
-
-			foreach (Part part in goodFuelLines) {
-				GUILayout.BeginHorizontal ();
-				if (GUILayout.Button (part.ToString (), bstyle)) {
-					showSelectedPart (lineType.goodFuel,  part);
-				}
-				GUILayout.EndHorizontal ();
-			}
-			foreach (Part part in goodStruts) {
-				GUILayout.BeginHorizontal ();
-					if (GUILayout.Button (part.ToString (), bstyle)) {
-					showSelectedPart (lineType.goodStrut, part);
-					}
-				GUILayout.EndHorizontal ();
-			}
-		}
-		void showBadStruts()
-		{
-			// show the bad struts
-			bstyle.normal.textColor = Color.red;
-			foreach (Part part in badFuelLines) {
-				GUILayout.BeginHorizontal ();
-					if (GUILayout.Button (part.ToString (), bstyle)) {
-						showSelectedPart (lineType.badFuel,  part);
-					}
-				GUILayout.EndHorizontal ();
-			}
-			foreach (Part part in badStruts) {
-				GUILayout.BeginHorizontal ();
-					if (GUILayout.Button (part.ToString (), bstyle)) {
-						showSelectedPart (lineType.badStrut, part);
-					}
-				GUILayout.EndHorizontal ();
-			}
-		}
+        void OnGUI()
+        {
+            if (DEBUG) Log("OnGUI() " + display, false);
+            if (display)
+                gui.OnGUI();
+        }
 
         /// <summary>
         /// Deletes a part.
         /// </summary>
         /// <param name="part">The part to delete.</param>
         //public static
-        void Delete(Part part)
+        public void Delete(Part part)
 		{
             if (HighLogic.LoadedSceneIsEditor)
             {
@@ -165,76 +104,7 @@ namespace StrutFinder
                 }
             }
 		}
-		void draw(int id)
-		{
-			GUI.skin = HighLogic.Skin;
-			GUILayout.Label ("Click button to highlight strut for deletion");
-			sitesScrollPosition = GUILayout.BeginScrollView (sitesScrollPosition);
-			if (goodFirst) {
-				showGoodStruts ();
-				showBadStruts ();
-			} else {
-				showBadStruts ();
-				showGoodStruts ();
-			}
-
-			GUILayout.EndScrollView ();
-			GUILayout.BeginHorizontal ();
-			if (GUILayout.Button ("Hide Window")) {
-				display = false;
-			}
-			if (goodFirst && (badFuelLines.Count () + badStruts.Count () > 0)) {
-				if (GUILayout.Button ("Show bad struts first")) {
-					selectedStrut = null;
-					goodFirst = false;
-				}
-			} else {
-				if (goodFuelLines.Count () + goodStruts.Count () > 0)
-				{
-					if (GUILayout.Button ("Show good struts first")) {
-						selectedStrut = null;
-						goodFirst = true;
-					}
-				}
-			}
-			if (selectedStrut != null) {
-				if (GUILayout.Button ("Delete Selected part")) {
-					
-					Delete(selectedStrut);
-					// Repopulate incase a strut with symmetry was deleted
-					PopulatePartLists();
-					selectedStrut = null;					
-				}
-			}
-			if (badFuelLines.Count () + badStruts.Count () > 0) {
-				if (GUILayout.Button ("Delete all bad parts")) {
-					Part part;
-
-					while ((part = badFuelLines.FirstOrDefault ()) != null) {
-						try {
-							Delete (part);
-						} catch (Exception ex) {
-							Debug.Log ("Deletion of part: " + part.ToString () + "  failed: " + ex);
-						}
-					}
-					while ((part = badStruts.FirstOrDefault ()) != null) {
-						try {
-							Delete (part);
-						} catch (Exception ex) {
-							Debug.Log ("Deletion of part: " + part.ToString () + "  failed: " + ex);
-
-						}
-					}
-
-					// Repopulate incase a strut with symmetry was deleted
-					PopulatePartLists ();
-					selectedStrut = null;					
-				}
-			}
-
-			GUILayout.EndHorizontal ();
-			GUI.DragWindow ();
-		}
+		
         void OnGUIAppLauncherReady()
         {
             if (ApplicationLauncher.Ready)
@@ -259,17 +129,32 @@ namespace StrutFinder
         void TurnHighlightOff()
         {
             ToggleHighlight(false);
-
         }
 
         void ToggleHighlight(bool state)
         {
-			display = state;
-			selectedStrut = null;
+            if (Event.current.alt && state || state && alwaysShowGUI)
+            {
+                if (DEBUG) Log("Mod key depressed", false);
+                if (DEBUG) Log("App State = " + state.ToString(), false);
+
+                display = true;
+                gui = new GUI(this, goodConnectionsFirst);
+                gui.selectedStrut = null;
+            }
+            else
+            {
+                if (DEBUG) Log("Mod key !depressed", false);
+                if (DEBUG) Log("App State = " + state.ToString(), false);
+
+                display = false;
+                SaveSettings(settingsURL);
+                gui = null;
+            }
             switch (state)
             {
                 case true:
-                    Debug.Log("[StrutFinder] Turn On Highlights");
+                    if (DEBUG) Log("Turn On Highlights", false);
                     PopulatePartLists();
 
                     launcherButton.SetTexture((Texture)GameDatabase.Instance.GetTexture(HighlightIconOn, false));
@@ -279,7 +164,7 @@ namespace StrutFinder
                     break;
 
                 case false:
-                    Debug.Log("[StrutFinder] Turn Off Highlights");
+                    if (DEBUG) Log("Turn Off Highlights", false);
                     UnHighlightParts(goodFuelLines);
                     UnHighlightParts(goodStruts);
                     UnHighlightParts( badFuelLines);
@@ -292,7 +177,7 @@ namespace StrutFinder
 
 
                 default:
-                    Debug.LogError("[StrutFinder] Error ToggleHighlight()");
+                    if (DEBUG) Log("Error ToggleHighlight()", true);
                     break;
             }
         }
@@ -324,7 +209,7 @@ namespace StrutFinder
             }
         }
 
-        void PopulatePartLists()
+        public void PopulatePartLists()
         {
             vesselP = new List<Part>();
 
@@ -349,7 +234,7 @@ namespace StrutFinder
             }
             else if (true)
             {
-                Debug.LogError("[StrutFinder] Error Getting Parts on Vessel");
+                Log("Error Getting Parts on Vessel", true);
                 return;
             }
 
@@ -369,21 +254,21 @@ namespace StrutFinder
                         break;
 
                     default:
-                        Debug.LogError("[StrutFinder] Error Categorizing Part Name " + p.name);
+                        Log("Error Categorizing Part Name " + p.name, true);
                         break;
                 }
             }
 
-            Debug.Log("[StrutFinder] Populated Parts Lists");
-            Debug.Log("[StrutFinder] " + goodStruts.Count + " Good Struts Found");
-            Debug.LogWarning("[StrutFinder] " + badStruts.Count + " Bad Struts Found");
-            Debug.Log("[StrutFinder] " + goodFuelLines.Count + " Good Fuel Lines Found");
-            Debug.LogWarning("[StrutFinder] " + badFuelLines.Count + " Bad Fuel Lines Found");
+            Log("Populated Parts Lists",false);
+            Log(goodStruts.Count + " Good Struts Found", false);
+            Log(badStruts.Count + " Bad Struts Found", false);
+            Log(goodFuelLines.Count + " Good Fuel Lines Found",false);
+            Log(badFuelLines.Count + " Bad Fuel Lines Found",false);
 
-            HighlightParts(XKCDColors.Aqua, XKCDColors.Yellow, goodFuelLines);
-            HighlightParts(XKCDColors.Purple, XKCDColors.OffWhite, goodStruts);
-            HighlightParts(XKCDColors.Aqua, XKCDColors.Green, badFuelLines);
-            HighlightParts(XKCDColors.Purple, XKCDColors.Red, badStruts);
+            HighlightParts(XKCDColors.Amethyst, goodFuelLineColor, goodFuelLines);
+            HighlightParts(XKCDColors.OffWhite, goodStrutColor, goodStruts);
+            HighlightParts(XKCDColors.Amethyst, badFuelLineColor, badFuelLines);
+            HighlightParts(XKCDColors.OffWhite, badStrutColor, badStruts);
         }
 
         void CompoundPartAttachStateSorter(CompoundPart part, List<Part> attached, List<Part> notAttached)
@@ -403,7 +288,7 @@ namespace StrutFinder
             attached.Add(part);
         }
 
-		void HighlightSinglePart(Color highlightC, Color edgeHighlightColor, Part p)
+		public void HighlightSinglePart(Color highlightC, Color edgeHighlightColor, Part p)
 		{
 			p.SetHighlightDefault();
 			p.SetHighlightType(Part.HighlightType.AlwaysOn);
@@ -412,23 +297,21 @@ namespace StrutFinder
 			p.highlighter.ConstantOn(edgeHighlightColor);
 			p.highlighter.SeeThroughOn();
 		}
-        void HighlightParts(Color highlightC, Color edgeHighlightColor, List<Part> partList)
+        public void HighlightParts(Color highlightC, Color edgeHighlightColor, List<Part> partList)
         {
                 foreach (Part p in partList)
                 {
-				HighlightSinglePart (highlightC, edgeHighlightColor, p);
-				#if false
-                   p.SetHighlightDefault();
-                   p.SetHighlightType(Part.HighlightType.AlwaysOn);
-                   p.SetHighlight(true, false);
-                   p.SetHighlightColor(highlightC);
-                   p.highlighter.ConstantOn(edgeHighlightColor);
-                   p.highlighter.SeeThroughOn();
-				#endif
-                }
+                HighlightSinglePart(highlightC, edgeHighlightColor, p);
+                p.SetHighlightDefault();
+                p.SetHighlightType(Part.HighlightType.AlwaysOn);
+                p.SetHighlight(true, false);
+                p.SetHighlightColor(highlightC);
+                p.highlighter.ConstantOn(edgeHighlightColor);
+                p.highlighter.SeeThroughOn();
+            }
         }
 
-        void UnHighlightParts(List<Part> partList)
+        public void UnHighlightParts(List<Part> partList)
         {
             foreach (Part p in partList)
             {
@@ -444,6 +327,7 @@ namespace StrutFinder
                 ApplicationLauncher.Instance.RemoveModApplication(launcherButton);
             }
             GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIAppLauncherReady);
+            gui = null;
             launcherButtonNeedsInitializing = true;
         }
 
@@ -454,7 +338,108 @@ namespace StrutFinder
                 GameEvents.onGUIApplicationLauncherReady.Add(OnGUIAppLauncherReady);
                 OnGUIAppLauncherReady();
                 launcherButtonNeedsInitializing = false;
+
+                LoadSettings(settingsURL);
             }
+        }
+
+        
+        void LoadSettings(string sSettingURL)
+        {
+            try
+            {
+
+                ConfigNode settings = ConfigNode.Load(KSPUtil.ApplicationRootPath + sSettingURL);
+
+                foreach (ConfigNode node in settings.GetNodes("StrutFinderSettings"))
+                {
+                    try
+                    {
+                        strutwin.xMin = float.Parse(node.GetValue("Window_xMin"));
+                        strutwin.yMin = float.Parse(node.GetValue("Window_yMin"));
+
+                        DEBUG = bool.Parse(node.GetValue("Debugging"));
+
+                        goodConnectionsFirst = bool.Parse(node.GetValue("GUIListDefaultGoodConnectionsFirst"));
+                        alwaysShowGUI = bool.Parse(node.GetValue("AlwaysShowGUI"));
+
+                        goodFuelLineColor.r = float.Parse(node.GetValue("GoodFuelLineColor_r"));
+                        goodFuelLineColor.g = float.Parse(node.GetValue("GoodFuelLineColor_g"));
+                        goodFuelLineColor.b = float.Parse(node.GetValue("GoodFuelLineColor_b"));
+                        goodFuelLineColor.a = float.Parse(node.GetValue("GoodFuelLineColor_a"));
+
+                        badFuelLineColor.r = float.Parse(node.GetValue("BadFuelLineColor_r"));
+                        badFuelLineColor.g = float.Parse(node.GetValue("BadFuelLineColor_g"));
+                        badFuelLineColor.b = float.Parse(node.GetValue("BadFuelLineColor_b"));
+                        badFuelLineColor.a = float.Parse(node.GetValue("BadFuelLineColor_a"));
+
+                        goodStrutColor.r = float.Parse(node.GetValue("GoodStrutColor_r"));
+                        goodStrutColor.g = float.Parse(node.GetValue("GoodStrutColor_g"));
+                        goodStrutColor.b = float.Parse(node.GetValue("GoodStrutColor_b"));
+                        goodStrutColor.a = float.Parse(node.GetValue("GoodStrutColor_a"));
+
+                        badStrutColor.r = float.Parse(node.GetValue("BadStrutColor_r"));
+                        badStrutColor.g = float.Parse(node.GetValue("BadStrutColor_g"));
+                        badStrutColor.b = float.Parse(node.GetValue("BadStrutColor_b"));
+                        badStrutColor.a = float.Parse(node.GetValue("BadStrutColor_a"));
+                    }
+                    catch (Exception)
+                    {
+                        Log("Error loading from config (field)", true);
+                        throw;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Log("Error loading from config (file)", true);
+                throw;
+            }
+        }
+
+        void SaveSettings(string sSettingURL)
+        {
+            ConfigNode settings = new ConfigNode();
+
+            ConfigNode sN = new ConfigNode();
+
+            sN.name = "StrutFinderSettings";
+
+            sN.AddValue("Window_xMin", strutwin.xMin);
+            sN.AddValue("Window_yMin", strutwin.yMin);
+            sN.AddValue("Debugging", DEBUG);
+            sN.AddValue("GUIListDefaultGoodConnectionsFirst", goodConnectionsFirst);
+            sN.AddValue("AlwaysShowGUI", alwaysShowGUI);
+
+            sN.AddValue("GoodFuelLineColor_r", goodFuelLineColor.r.ToString());
+            sN.AddValue("GoodFuelLineColor_g", goodFuelLineColor.g.ToString());
+            sN.AddValue("GoodFuelLineColor_b", goodFuelLineColor.b.ToString());
+            sN.AddValue("GoodFuelLineColor_a", goodFuelLineColor.a.ToString());
+
+            sN.AddValue("BadFuelLineColor_r", badFuelLineColor.r.ToString());
+            sN.AddValue("BadFuelLineColor_g", badFuelLineColor.g.ToString());
+            sN.AddValue("BadFuelLineColor_b", badFuelLineColor.b.ToString());
+            sN.AddValue("BadFuelLineColor_a", badFuelLineColor.a.ToString());
+
+            sN.AddValue("GoodStrutColor_r", goodStrutColor.r.ToString());
+            sN.AddValue("GoodStrutColor_g", goodStrutColor.g.ToString());
+            sN.AddValue("GoodStrutColor_b", goodStrutColor.b.ToString());
+            sN.AddValue("GoodStrutColor_a", goodStrutColor.a.ToString());
+
+            sN.AddValue("BadStrutColor_r", badStrutColor.r.ToString());
+            sN.AddValue("BadStrutColor_g", badStrutColor.g.ToString());
+            sN.AddValue("BadStrutColor_b", badStrutColor.b.ToString());
+            sN.AddValue("BadStrutColor_a", badStrutColor.a.ToString());
+
+            settings.AddNode(sN);
+
+            settings.Save(KSPUtil.ApplicationRootPath + sSettingURL, "StrutFinder Setting File");
+        }
+
+        public void Log(String message, bool warning)
+        {
+                if (warning) Debug.LogWarning("[StrutFinder] " + message);
+                else Debug.Log("[StrutFinder] " + message);
         }
     }
 }

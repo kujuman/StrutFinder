@@ -63,8 +63,12 @@
       <HintPath>..\..\..\..\..\Desktop\KSP Modding\Assemblies\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\Desktop\KSP Modding\Assemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI.cs" />
     <Compile Include="StrutFinderApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
