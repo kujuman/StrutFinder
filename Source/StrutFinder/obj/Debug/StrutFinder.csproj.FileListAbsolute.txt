@@ -8,4 +8,3 @@ C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\bin\Debug\Strut
 C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.dll
 C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.pdb
 C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\obj\Debug\StrutFinder.csprojResolveAssemblyReference.cache
-C:\Users\Daniel7\Documents\GitHub\StrutFinder\Source\StrutFinder\bin\Debug\UnityEngine.UI.dll
